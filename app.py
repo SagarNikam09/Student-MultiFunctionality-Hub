@@ -29,7 +29,6 @@ os.environ["LINKEDIN_SEARCH"] = st.secrets.get("LINKEDIN_JOB_SEARCH", "")
 # Page configuration
 st.set_page_config(layout="wide")
 st.title("GenAI Career Assistant - 👨‍💼")
-st.markdown("[Connect with me on LinkedIn](https://www.linkedin.com/in/aman-varyani-885725181/)")
 
 streamlit_analytics.start_tracking()
 
@@ -119,7 +118,7 @@ st.sidebar.markdown(
     """
     <div style="padding:10px 0;">
         If you like the project, give a 
-        <a href="https://github.com/amanv1906/GENAI-CareerAssistant-Multiagent" target="_blank" style="text-decoration:none;">
+        <a href="https://github.com/SagarNikam09/Student-MultiFunctionality-Hub" target="_blank" style="text-decoration:none;">
             ⭐ on GitHub
         </a>
     </div>

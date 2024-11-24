@@ -2,8 +2,6 @@
 
 <img src="multiagent.png" alt="GenAI Career Assistant Architecture" width="500">
 
-**Author**: [Aman Varyani](https://medium.com/@amanvaryani1910)
-**Linkedin**: [Aman Varyani](https://www.linkedin.com/in/aman-varyani-885725181/)
 
 Welcome to the GenAI Career Assistant, a powerful tool designed to revolutionize the job search process using cutting-edge AI technology. This project leverages a multi-agent architecture to provide personalized career guidance, making job hunting more efficient and tailored to individual needs.
 
@@ -70,8 +68,8 @@ The GenAI Career Assistant is built on a Supervisor Multi-Agent Architecture. He
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/amanv1906/GENAI-CareerAssistant-Multiagent.git
-   cd GENAI-CareerAssistant-Multiagent
+   git clone https://github.com/SagarNikam09/Student-MultiFunctionality-Hub
+   cd Student-MultiFunctionality-Hub
    ```
 
 2. Install the required packages:

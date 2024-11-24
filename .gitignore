@@ -1,0 +1,10 @@
+.env
+tmp/
+temp_storage/
+secrets.toml
+.streamlit/secrets.toml
+.streamlit/config.toml
+__pycache__/
+.streamlit
+.gitignore
+myenv/

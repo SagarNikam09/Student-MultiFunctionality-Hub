@@ -34,7 +34,7 @@ st.title("Student Multi-Functionality Hub ")
 
 # Sidebar navigation
 st.sidebar.title("Navigation")
-page = st.sidebar.radio("Go to", ["Home", "Chatbot","Coder Friend", "About"])
+page = st.sidebar.radio("Go to", ["Home", "Chatbot","Coder Friend","E-mail bot" ,"About"])
 
 if page == "Home":
     streamlit_analytics.start_tracking()
@@ -370,26 +370,26 @@ elif page == "Coder Friend":
     if GENAI_API_KEY is None:
         st.error("Please set the GEMINI_API_KEY environment variable.")
         st.stop()
-    
+
     genai.configure(api_key=GENAI_API_KEY)
-    
+
     # Initialize the Gemini model
     model = genai.GenerativeModel(
         model_name='gemini-1.5-pro',
         tools='code_execution'
     )
-    
+
     # Streamlit App UI
     st.title("Coder Buddy")
     st.write("This app allows you to input your query, and it will generate and execute code to provide results.")
-    
+
     # User input section
     st.subheader("Enter Your Query")
     query = st.text_area(
         "Type your question or task that requires code execution:",
         placeholder="E.g., What is the sum of the first 50 prime numbers?",
     )
-    
+
     # Generate and execute button
     if st.button("Generate and Execute"):
         if query.strip():  # Check if the query is not empty
@@ -397,24 +397,28 @@ elif page == "Coder Friend":
                 # Call the Gemini API
                 with st.spinner("Generating and executing code..."):
                     response = model.generate_content(query)
-    
+
                 # Extract and display the code and output
                 generated_text = response.text or "No result generated."  # Fallback if no text is generated
-                
+
                 # Assume the generated code is marked or indented in the text
                 st.subheader("Generated Content:")
                 st.text_area("Full Response from Coder Friend:", value=generated_text, height=300)
-    
+
                 # Optional: Use a delimiter or parsing method to separate the code from output
                 st.subheader("Execution Output (if any):")
                 st.write(generated_text)  # For simplicity, display the entire response
-                
+
             except Exception as e:
                 st.error(f"An error occurred while processing your query: {e}")
         else:
             st.warning("Please enter a valid query.")
-    
+
     # Footer
     st.write("---")
     st.write("This code created by Student Multi-Functionality Hub")
+
+elif page == 'E-mail bot':
     
+    st.write("Click the link below to visit E-mail bot:")
+    st.markdown("[Open Cold Mail gen](https://coldemailai.streamlit.app/)", unsafe_allow_html=True)

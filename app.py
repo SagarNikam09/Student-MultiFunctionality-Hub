@@ -14,6 +14,8 @@ from custom_callback_handler import CustomStreamlitCallbackHandler
 from agents import define_graph
 import shutil
 import google.generativeai as genai
+import pdfplumber
+
     
 load_dotenv()
 
@@ -34,7 +36,7 @@ st.title("Student Multi-Functionality Hub ")
 
 # Sidebar navigation
 st.sidebar.title("Navigation")
-page = st.sidebar.radio("Go to", ["Home", "Chatbot","Coder Friend","E-mail bot" ,"About"])
+page = st.sidebar.radio("Go to", ["Home","DocComparator" ,"Chatbot","Coder Friend","E-mail bot" ,"About"])
 
 if page == "Home":
     streamlit_analytics.start_tracking()
@@ -422,3 +424,55 @@ elif page == 'E-mail bot':
     
     st.write("Click the link below to visit E-mail bot:")
     st.markdown("[Open Cold Mail gen](https://coldemailai.streamlit.app/)", unsafe_allow_html=True)
+
+elif page == 'DocComparator':
+    # Configure the Gemini API
+    GENAI_API_KEY = os.getenv("GEMINI_API_KEY")  # Ensure the environment variable is set
+    if GENAI_API_KEY is None:
+        st.error("Please set the GEMINI_API_KEY environment variable.")
+        st.stop()
+
+    genai.configure(api_key=GENAI_API_KEY)
+
+    # Initialize the Gemini model
+    model = genai.GenerativeModel(model_name="gemini-1.5-flash")
+
+    # Streamlit App UI
+    st.title("Doc Comparator")
+    st.write("Upload multiple PDF documents to summarize the differences between their thesis statements.")
+
+    # File uploader for PDFs
+    uploaded_files = st.file_uploader(
+        "Upload your documents (PDF files only):",
+        accept_multiple_files=True,
+        type=["pdf"],
+    )
+
+    prompt = "Summarize the differences between the thesis statements for these documents."
+
+    if st.button("Generate Summary"):
+        if len(uploaded_files) < 2:
+            st.warning("Please upload at least two PDF files.")
+        else:
+            try:
+                # Extract text from uploaded PDF files using pdfplumber
+                file_contents = []
+                for uploaded_file in uploaded_files:
+                    with pdfplumber.open(uploaded_file) as pdf:
+                        content = ""
+                        for page in pdf.pages:
+                            content += page.extract_text()
+                        file_contents.append(content)
+
+                # Prepare the input for the Gemini model
+                input_data = [prompt] + file_contents
+
+                # Generate the response
+                with st.spinner("Generating summary..."):
+                    response = model.generate_content(input_data)
+
+                # Display the summary
+                st.subheader("Summary of Differences:")
+                st.write(response.text or "No summary generated.")
+            except Exception as e:
+                st.error(f"An error occurred while processing the files: {e}")

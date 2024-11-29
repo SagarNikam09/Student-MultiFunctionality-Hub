@@ -277,9 +277,9 @@ if page == "Home":
 
 elif page == "Chatbot":
 
-    
+
     # Configure page title
-    st.title("Simple AI Chatbot")
+    st.title("Study-Buddy Chatbot")
     
     # Initialize session state for chat history
     if 'chat_history' not in st.session_state:
@@ -341,7 +341,7 @@ elif page == "Chatbot":
                 # Stream the response
                 for chunk in response:
                     full_response += chunk.text
-                    response_placeholder.write(f"Assistant: {full_response}")
+                    response_placeholder.write()
                 
                 # Add final response to history
                 st.session_state.chat_history.append({"role": "Assistant", "content": full_response})

@@ -34,7 +34,7 @@ st.title("Student Multi-Functionality Hub ")
 
 # Sidebar navigation
 st.sidebar.title("Navigation")
-page = st.sidebar.radio("Go to", ["Home", "Chatbot", "About"])
+page = st.sidebar.radio("Go to", ["Home", "Chatbot","Coder Friend", "About"])
 
 if page == "Home":
     streamlit_analytics.start_tracking()
@@ -280,22 +280,22 @@ elif page == "Chatbot":
 
     # Configure page title
     st.title("Study-Buddy Chatbot")
-    
+
     # Initialize session state for chat history
     if 'chat_history' not in st.session_state:
         st.session_state.chat_history = []
-    
+
     # Initialize Gemini with initial history
     def initialize_gemini():
         try:
             # Get API key from secrets.toml
             api_key = st.secrets["GEMINI_API_KEY"]
-            
+
             # Validate API key
             if not api_key:
                 st.error("API key is missing. Please check your secrets.toml file.")
                 return None
-                
+
             genai.configure(api_key=api_key)
             model = genai.GenerativeModel("gemini-1.5-flash")
             chat = model.start_chat(
@@ -308,57 +308,113 @@ elif page == "Chatbot":
         except Exception as e:
             st.error(f"Error initializing chat: {str(e)}")
             return None
-    
+
     # Initialize chat instance
     if 'chat' not in st.session_state:
         st.session_state.chat = initialize_gemini()
-    
+
     # Check if chat is properly initialized
     if st.session_state.chat is None:
         st.warning("Chat initialization failed. Please check your API key and try again.")
         st.stop()  # Stop execution if chat isn't initialized
-    
+
     # Display chat history
     for message in st.session_state.chat_history:
         st.write(f"{message['role']}: {message['content']}")
-    
+
     # Function to process user input
     def process_user_input():
         if st.session_state.user_input and st.session_state.chat:
             user_message = st.session_state.user_input
-            
+
             # Add user message to history
             st.session_state.chat_history.append({"role": "User", "content": user_message})
-            
+
             try:
                 # Get model response with streaming
                 response = st.session_state.chat.send_message(user_message, stream=True)
-                
+
                 # Container for streaming response
                 response_placeholder = st.empty()
                 full_response = ""
-                
+
                 # Stream the response
                 for chunk in response:
                     full_response += chunk.text
                     response_placeholder.write()
-                
+
                 # Add final response to history
                 st.session_state.chat_history.append({"role": "Assistant", "content": full_response})
-                
+
             except Exception as e:
                 st.error(f"Error during chat: {str(e)}")
-    
+
     # Chat input with callback
     user_input = st.text_input("Type your message:", key="user_input", on_change=process_user_input)
-    
+
     # Add a clear button
     if st.button("Clear Chat"):
         st.session_state.chat_history = []
         st.session_state.chat = initialize_gemini()
-    
+
     # Display initialization status
     if st.session_state.chat:
         st.success("Chat is initialized and ready!")
     else:
         st.error("Chat is not properly initialized. Please check your configuration.")
+
+elif page == "Coder Friend":
+
+    # Configure the Gemini API
+    GENAI_API_KEY = os.getenv("GEMINI_API_KEY")  # Ensure the environment variable is set
+    if GENAI_API_KEY is None:
+        st.error("Please set the GEMINI_API_KEY environment variable.")
+        st.stop()
+    
+    genai.configure(api_key=GENAI_API_KEY)
+    
+    # Initialize the Gemini model
+    model = genai.GenerativeModel(
+        model_name='gemini-1.5-pro',
+        tools='code_execution'
+    )
+    
+    # Streamlit App UI
+    st.title("Coder Buddy")
+    st.write("This app allows you to input your query, and it will generate and execute code to provide results.")
+    
+    # User input section
+    st.subheader("Enter Your Query")
+    query = st.text_area(
+        "Type your question or task that requires code execution:",
+        placeholder="E.g., What is the sum of the first 50 prime numbers?",
+    )
+    
+    # Generate and execute button
+    if st.button("Generate and Execute"):
+        if query.strip():  # Check if the query is not empty
+            try:
+                # Call the Gemini API
+                with st.spinner("Generating and executing code..."):
+                    response = model.generate_content(query)
+    
+                # Extract and display the code and output
+                generated_text = response.text or "No result generated."  # Fallback if no text is generated
+                
+                # Assume the generated code is marked or indented in the text
+                st.subheader("Generated Content:")
+                st.text_area("Full Response from Coder Friend:", value=generated_text, height=300)
+    
+                # Optional: Use a delimiter or parsing method to separate the code from output
+                st.subheader("Execution Output (if any):")
+                st.write(generated_text)  # For simplicity, display the entire response
+                
+            except Exception as e:
+                st.error(f"An error occurred while processing your query: {e}")
+        else:
+            st.warning("Please enter a valid query.")
+    
+    # Footer
+    st.write("---")
+    st.write("This code created by Student Multi-Functionality Hub")
+    

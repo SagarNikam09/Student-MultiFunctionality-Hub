@@ -15,3 +15,4 @@ pymupdf
 streamlit-analytics2
 python-docx
 asgiref
+google-generativeai

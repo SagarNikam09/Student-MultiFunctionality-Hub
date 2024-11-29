@@ -277,18 +277,25 @@ if page == "Home":
 
 elif page == "Chatbot":
 
+    
     # Configure page title
-    st.title("multi Chatbot")
-
+    st.title("Simple AI Chatbot")
+    
     # Initialize session state for chat history
     if 'chat_history' not in st.session_state:
         st.session_state.chat_history = []
-
+    
     # Initialize Gemini with initial history
     def initialize_gemini():
         try:
             # Get API key from secrets.toml
             api_key = st.secrets["GEMINI_API_KEY"]
+            
+            # Validate API key
+            if not api_key:
+                st.error("API key is missing. Please check your secrets.toml file.")
+                return None
+                
             genai.configure(api_key=api_key)
             model = genai.GenerativeModel("gemini-1.5-flash")
             chat = model.start_chat(
@@ -301,50 +308,57 @@ elif page == "Chatbot":
         except Exception as e:
             st.error(f"Error initializing chat: {str(e)}")
             return None
-
-    # Get or create chat instance
+    
+    # Initialize chat instance
     if 'chat' not in st.session_state:
         st.session_state.chat = initialize_gemini()
-
+    
+    # Check if chat is properly initialized
+    if st.session_state.chat is None:
+        st.warning("Chat initialization failed. Please check your API key and try again.")
+        st.stop()  # Stop execution if chat isn't initialized
+    
     # Display chat history
     for message in st.session_state.chat_history:
         st.write(f"{message['role']}: {message['content']}")
-
+    
     # Function to process user input
     def process_user_input():
-        if st.session_state.user_input:
+        if st.session_state.user_input and st.session_state.chat:
             user_message = st.session_state.user_input
-
+            
             # Add user message to history
             st.session_state.chat_history.append({"role": "User", "content": user_message})
-
+            
             try:
                 # Get model response with streaming
                 response = st.session_state.chat.send_message(user_message, stream=True)
-
+                
                 # Container for streaming response
                 response_placeholder = st.empty()
                 full_response = ""
-
+                
                 # Stream the response
                 for chunk in response:
                     full_response += chunk.text
-                    response_placeholder.write()
-
+                    response_placeholder.write(f"Assistant: {full_response}")
+                
                 # Add final response to history
-                st.session_state.chat_history.append({"role": "Study-Buddy", "content": full_response})
-
+                st.session_state.chat_history.append({"role": "Assistant", "content": full_response})
+                
             except Exception as e:
-                st.error(f"Error: {str(e)}")
-
+                st.error(f"Error during chat: {str(e)}")
+    
     # Chat input with callback
     user_input = st.text_input("Type your message:", key="user_input", on_change=process_user_input)
-
+    
     # Add a clear button
     if st.button("Clear Chat"):
         st.session_state.chat_history = []
         st.session_state.chat = initialize_gemini()
-
-    # Optional: Display raw chat history from Gemini
-    if st.checkbox("Show Raw Chat History"):
-        st.write("Raw Chat History:", st.session_state.chat.history)
+    
+    # Display initialization status
+    if st.session_state.chat:
+        st.success("Chat is initialized and ready!")
+    else:
+        st.error("Chat is not properly initialized. Please check your configuration.")

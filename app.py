@@ -15,6 +15,9 @@ from agents import define_graph
 import shutil
 import google.generativeai as genai
 import pdfplumber
+import requests
+import zipfile
+import io
 
     
 load_dotenv()
@@ -479,16 +482,16 @@ elif page == 'DocComparator':
 
 elif page == 'ReadMe for GitHub':
 
-    
+
     # Configure the Gemini API
     GENAI_API_KEY = os.getenv("GEMINI_API_KEY")  # Ensure the environment variable is set
     if GENAI_API_KEY is None:
         st.error("Please set the GEMINI_API_KEY environment variable.")
         st.stop()
-    
+
     genai.configure(api_key=GENAI_API_KEY)
     model = genai.GenerativeModel(model_name="gemini-1.5-flash")
-    
+
     # Function to fetch GitHub repository content as ZIP
     def fetch_github_repo(repo_url):
         try:
@@ -497,11 +500,11 @@ elif page == 'ReadMe for GitHub':
             if len(parts) < 5:
                 st.error("Invalid GitHub repository URL.")
                 return None
-    
+
             owner = parts[-2]
             repo = parts[-1]
             api_url = f"https://api.github.com/repos/{owner}/{repo}/zipball"
-            
+
             # Request the ZIP file
             response = requests.get(api_url, stream=True)
             if response.status_code == 200:
@@ -512,7 +515,7 @@ elif page == 'ReadMe for GitHub':
         except Exception as e:
             st.error(f"An error occurred: {e}")
             return None
-    
+
     # Function to extract specific files (app.py or main.py) and read them
     def extract_and_read_file(zip_content, target_file="app.py"):
         with zipfile.ZipFile(io.BytesIO(zip_content)) as z:
@@ -523,28 +526,28 @@ elif page == 'ReadMe for GitHub':
                     target_file_content = z.read(file).decode('utf-8')
                     break
             return target_file_content
-    
+
     # Streamlit UI setup
     st.title("GitHub README Generator")
     st.write("Enter a GitHub repository URL to generate a README.md file based on the repository's main Python file.")
-    
+
     # Input for GitHub repository URL
     repo_url = st.text_input("GitHub Repository URL", placeholder="https://github.com/username/repository")
-    
+
     # Input for the file name (default to "app.py" or "main.py")
     target_file = st.text_input("File to Read (e.g., app.py, main.py)", value="app.py", placeholder="app.py or main.py")
-    
+
     if st.button("Generate README"):
         if not repo_url:
             st.warning("Please enter a valid GitHub repository URL.")
         else:
             with st.spinner("Fetching repository data..."):
                 zip_content = fetch_github_repo(repo_url)
-            
+
             if zip_content:
                 # Extract and read the target file (e.g., app.py)
                 file_content = extract_and_read_file(zip_content, target_file)
-                
+
                 if file_content:
                     # Prepare the prompt for the Gemini API
                     prompt = (
@@ -554,16 +557,16 @@ elif page == 'ReadMe for GitHub':
                         f"Ensure that the `README.md` includes sections like Introduction, Installation, Usage, Features, "
                         f"Contributing, License, and other relevant details based on the provided code content."
                     )
-                    
+
                     try:
                         with st.spinner("Generating README ..."):
                             response = model.generate_content(prompt)
-                            
+
                         # Display the generated README content
                         st.subheader("Generated README.md")
                         readme_content = response.text or "No content generated."
                         st.code(readme_content, language="markdown")
-                        
+
                         # Allow user to download the generated README
                         st.download_button(
                             label="Download README.md",
@@ -575,6 +578,5 @@ elif page == 'ReadMe for GitHub':
                         st.error(f"An error occurred while generating the README: {e}")
                 else:
                     st.error(f"The file {target_file} was not found in the repository.")
-    
-    
-    
+
+

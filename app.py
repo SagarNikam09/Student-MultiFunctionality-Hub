@@ -39,9 +39,21 @@ st.title("Student Multi-Functionality Hub ")
 
 # Sidebar navigation
 st.sidebar.title("Navigation")
-page = st.sidebar.radio("Go to", ["Home","DocComparator" ,"Chatbot","Coder Friend","E-mail bot","ReadMe for GitHub" ,"About"])
+page = st.sidebar.radio("Go to", ["Home","DocComparator" ,"Chatbot","Coder Friend","E-mail bot","ReadMe for GitHub" ,"Others"])
 
 if page == "Home":
+    st.markdown(
+        """
+        <div style="padding:10px 0;">
+            <h1 style="text-align:center;">Student Multi-Functionality Hub</h1>
+            <p style="text-align:center;">Welcome to the Student Multi-Functionality Hub! This app provides a range of tools and agents to assist students with various tasks, including chatbots, code generation, resume analysis, and more.</p>
+            <p style="text-align:center;">Use the sidebar to navigate to different tools and services.</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+if page == "Others":
     streamlit_analytics.start_tracking()
 
     # Setup directories and paths

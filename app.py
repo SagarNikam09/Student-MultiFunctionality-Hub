@@ -45,7 +45,6 @@ if page == "Home":
     st.markdown(
         """
         <div style="padding:10px 0;">
-            <h1 style="text-align:center;">Student Multi-Functionality Hub</h1>
             <p style="text-align:center;">Welcome to the Student Multi-Functionality Hub! This app provides a range of tools and agents to assist students with various tasks, including chatbots, code generation, resume analysis, and more.</p>
             <p style="text-align:center;">Use the sidebar to navigate to different tools and services.</p>
         </div>
